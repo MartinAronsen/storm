@@ -51,12 +51,14 @@ class _Settings extends \IPS\Patterns\Singleton
 
     public static function form()
     {
-        $form = \IPS\storm\Forms::i( static::elements() );
+        $s = \IPS\Settings::i();
+        $form = \IPS\storm\Forms::i( static::elements(), $s );
+
         if( $vals = $form->values() )
         {
+
             $form->saveAsSettings( $vals );
-            \IPS\Output::i()
-                       ->redirect( \IPS\Http\Url::internal( 'app=storm&module=configuration&controller=settings' ) );
+            \IPS\Output::i()->redirect( \IPS\Http\Url::internal( 'app=storm&module=configuration&controller=settings' ) );
         }
 
         return $form;
@@ -67,59 +69,30 @@ class _Settings extends \IPS\Patterns\Singleton
         $e[] = [
             'class' => "YesNo",
             'name' => "storm_settings_tab_debug_templates",
-            'default' => \IPS\Settings::i()->storm_settings_tab_debug_templates
+            'tab' => 'general'
         ];
 
         $e[] = [
             'class' => "YesNo",
-            'name' => "storm_settings_tab_debug_css",
-            'default' => \IPS\Settings::i()->storm_settings_tab_debug_css
+            'name' => "storm_settings_tab_debug_css"
         ];
 
         $e[] = [
             'class' => "YesNo",
-            'name' => "storm_settings_tab_debug_css_alt",
-            'default' => \IPS\Settings::i()->storm_settings_tab_debug_css_alt
+            'name' => "storm_settings_tab_debug_css_alt"
         ];
 
         $e[] = [
             'class' => "YesNo",
-            'name' => 'storm_profiler_is_fixed',
-            'default' => \IPS\Settings::i()->storm_profiler_is_fixed
+            'name' => 'storm_profiler_is_fixed'
         ];
+
+        $e[] = [
+            'class' => 'YesNo',
+            'name' => 'storm_settings_disable_menu'
+        ];
+
         return $e;
     }
 
-    public function devBar()
-    {
-        $applications = false;
-        //
-        foreach( \IPS\Application::applications() as $apps )
-        {
-            $applications[] = [
-                'name' => $apps->directory,
-                'url' => \IPS\Http\Url::internal( 'app=core&module=applications&controller=developer&appKey=' . $apps->directory )
-            ];
-        }
-        $plugins = false;
-        foreach( \IPS\Plugin::plugins() as $plugin )
-        {
-            $plugins[] = [
-                'name' => $plugin->name,
-                'url' => \IPS\Http\Url::internal( 'app=core&module=applications&controller=plugins&do=developer&id=' . $plugin->id )
-            ];
-        }
-        $version = \IPS\Application::load('core');
-
-        if( $version->long_version < 101110 )
-        {
-            return \IPS\Theme::i()->getTemplate( 'dev', 'storm', 'admin' )->devBar2( $applications, $plugins );
-        }
-        else{
-            return \IPS\Theme::i()->getTemplate( 'dev', 'storm', 'admin' )->devBar( $applications, $plugins );
-
-        }
-
-
-    }
 }

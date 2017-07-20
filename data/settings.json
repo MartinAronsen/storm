@@ -1,6 +1,18 @@
 [
     {
+        "key": "storm_ftp_details",
+        "default": ""
+    },
+    {
+        "key": "storm_ftp_path",
+        "default": ""
+    },
+    {
         "key": "storm_profiler_is_fixed",
+        "default": ""
+    },
+    {
+        "key": "storm_settings_disable_menu",
         "default": ""
     },
     {

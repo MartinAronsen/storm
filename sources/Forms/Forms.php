@@ -2,13 +2,13 @@
 
 /**
  * @brief       Forms Forms Class
- * @author      -storm_author-
- * @copyright   -storm_copyright-
+ * @author      <a href='http://codingjungle.com'>Michael Edwards</a>
+ * @copyright   (c) 2017 Michael Edwards
  * @package     IPS Social Suite
  * @subpackage  Storm
  * @since       -storm_since_version-
- * @version     -storm_version-
- * forms version 1.0.5
+ * @version     3.0.4
+ * forms version 1.0.6
  */
 
 namespace IPS\storm;
@@ -26,26 +26,77 @@ class _Forms
      * @brief multiton store
      */
     protected static $instance = [];
+
+    /**
+     * instantiate Forms class
+     *
+     * @param array $elements the array of elements to build
+     * @param object $object a record element for the form
+     * @param string $name name of the form
+     * @param \IPS\Helpers\Form|null $form can pass an existing form object
+     * @param string $id html id of the form
+     * @param string $submitLang lang string for submit button
+     * @param null $action where it post to
+     * @param array $attributes any addition attributes that need to be pass
+     *
+     * @return mixed
+     */
+    public static function i( array $elements, $object = null, $name = 'default', $form = null, $id = 'form', $submitLang = 'save', $action = null, $attributes = [] )
+    {
+        if( !$name )
+        {
+            $name = md5( rand( 1, 100000 ) );
+        }
+
+        if( !isset( static::$instance[ $name ] ) )
+        {
+            $class = get_called_class();
+            static::$instance[ $name ] = new $class();
+            static::$instance[ $name ]->elements = $elements;
+            static::$instance[ $name ]->obj = $object;
+
+            if( $form instanceof \IPS\Helpers\Form )
+            {
+                static::$instance[ $name ]->form = $form;
+            }
+            else
+            {
+                static::$instance[ $name ]->form = new \IPS\Helpers\Form( $id, $submitLang, $action, $attributes );
+            }
+
+            if( $id )
+            {
+                static::$instance[ $name ]->form->id = $id;
+            }
+        }
+
+        return static::$instance[ $name ]->run();
+    }
+
     /**
      * @brief for use in run once the object is instantiated
      * @var \IPS\Helpers\Form|null
      */
     protected $form = null;
+
     /**
      * @brief form helpers store
      * @var array
      */
     protected $elements = [];
+
     /**
      * @brief the form record object
      * @var null
      **/
     protected $obj = null;
+
     /**
      * @brief the language prefix
      * @var null
      */
     protected $langPrefix = null;
+
     /**
      * @brief the class map for form elements
      * @var array
@@ -108,60 +159,6 @@ class _Forms
      */
     final protected function __construct()
     {
-    }
-
-    /**
-     * instantiate Forms class
-     *
-     * @param array $elements the array of elements to build
-     * @param object $object a record element for the form
-     * @param string $name name of the form
-     * @param \IPS\Helpers\Form|null $form can pass an existing form object
-     * @param string $id html id of the form
-     * @param string $submitLang lang string for submit button
-     * @param null $action where it post to
-     * @param array $attributes any addition attributes that need to be pass
-     *
-     * @return mixed
-     */
-    public static function i(
-        array $elements,
-        $object = null,
-        $name = 'default',
-        $form = null,
-        $id = 'form',
-        $submitLang = 'save',
-        $action = null,
-        $attributes = []
-    ) {
-        if( !$name )
-        {
-            $name = md5( rand( 1, 100000 ) );
-        }
-
-        if( !isset( static::$instance[ $name ] ) )
-        {
-            $class = get_called_class();
-            static::$instance[ $name ] = new $class();
-            static::$instance[ $name ]->elements = $elements;
-            static::$instance[ $name ]->obj = $object;
-
-            if( $form instanceof \IPS\Helpers\Form )
-            {
-                static::$instance[ $name ]->form = $form;
-            }
-            else
-            {
-                static::$instance[ $name ]->form = new \IPS\Helpers\Form( $id, $submitLang, $action, $attributes );
-            }
-
-            if( $id )
-            {
-                static::$instance[ $name ]->form->id = $id;
-            }
-        }
-
-        return static::$instance[ $name ]->run();
     }
 
     /**
@@ -295,6 +292,7 @@ class _Forms
                     {
                         throw new \InvalidArgumentException( json_encode( $el ) );
                     }
+                    $default = null;
 
                     if( is_object( $this->obj ) )
                     {
@@ -307,12 +305,22 @@ class _Forms
                         else
                         {
                             $prop = $langPrefix . $prop;
-                            $default = $obj->{$prop};
+                            if( $obj->{$prop} )
+                            {
+                                $default = $obj->{$prop};
+                            }
+                        }
+
+                        if( $default == null )
+                        {
+                            if( isset( $el[ 'default' ] ) or isset( $el[ 'def' ] ) )
+                            {
+                                $default = isset( $el[ 'default' ] ) ? $el[ 'default' ] : $el[ 'def' ];
+                            }
                         }
                     }
                     else
                     {
-                        $default = null;
                         if( isset( $el[ 'default' ] ) or isset( $el[ 'def' ] ) )
                         {
                             $default = isset( $el[ 'default' ] ) ? $el[ 'default' ] : $el[ 'def' ];
