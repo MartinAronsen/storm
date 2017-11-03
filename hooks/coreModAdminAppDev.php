@@ -579,18 +579,20 @@ class storm_hook_coreModAdminAppDev extends _HOOK_CLASS_
         $colors = new \IPS\Helpers\Form\Matrix;
 
         $colors->columns = array(
-            'lang_key'	=> function( $key, $value, $data )
+            'stormlang_key'	=> function( $key, $value, $data )
             {
                 return new \IPS\Helpers\Form\Text( $key, $value );
             },
-            'lang_val' => function( $key, $value, $data ){
+            'stormlang_val' => function( $key, $value, $data ){
                 return new \IPS\Helpers\Form\TextArea( $key, $value );
             },
-            'lang_no_js' => function( $key, $value, $data ){
-                return new \IPS\Helpers\Form\Checkbox($key, $value);
-            },
-            'lang_js' => function( $key, $value, $data ){
-                return new \IPS\Helpers\Form\Checkbox( $key, $value );
+            'stormlang_no_js' => function( $key, $value, $data ){
+                $options = [
+                    0 => 'lang.php',
+                    1 => 'jslang.php',
+                    2 => 'lang.php and jslang.php'
+                ];
+                return new \IPS\Helpers\Form\Select($key, $value, false, [ 'options' => $options]);
             }
         );
 
@@ -602,27 +604,26 @@ class storm_hook_coreModAdminAppDev extends _HOOK_CLASS_
         $ljslang = $lang;
         if( $llang and is_array($llang ) and count( $llang )  ) {
             foreach( $llang as $key => $val ) {
-                $colors->rows[] = [
-                    'lang_key'   => $key,
-                    'lang_val'   => $val,
-                    'lang_no_js' => 1,
-                    'lang_js'    => ( isset( $ljslang[ $key ] ) ) ? true : false
-                ];
-
-
+                $op = 0;
                 if( isset( $ljslang[ $key ] ) ){
+                    $op = 2;
                     unset( $ljslang[$key] );
                 }
+
+                $colors->rows[] = [
+                    'stormlang_key'   => $key,
+                    'stormlang_val'   => $val,
+                    'stormlang_no_js'    => $op
+                ];
             }
         }
 
         if( $ljslang and is_array( $ljslang ) and count( $ljslang ) ){
             foreach( $ljslang as $key => $val ){
                 $colors->rows[] = [
-                    'lang_key'   => $key,
-                    'lang_val'   => $val,
-                    'lang_no_js' => false,
-                    'lang_js'    => true
+                    'stormlang_key'   => $key,
+                    'stormlang_val'   => $val,
+                    'stormlang_no_js' => 1,
                 ];
             }
         }
@@ -640,16 +641,17 @@ class storm_hook_coreModAdminAppDev extends _HOOK_CLASS_
             $l = [];
             $j = [];
             foreach( $vals['langlangs'] as $v ){
-                if( $v['lang_no_js'] ){
-                    $l[ $v['lang_key'] ] = $v['lang_val'];
+                if( $v['stormlang_no_js'] == 0 or $v['stormlang_no_js'] == 2 ){
+                    $l[ $v['stormlang_key'] ] = $v['stormlang_val'];
                 }
 
-                if( $v['lang_js'] ){
-                    $j[ $v['lang_key'] ] = $v['lang_val'];
+                if( $v['stormlang_no_js'] == 1 or $v['stormlang_no_js'] == 2 ){
+                    $j[ $v['stormlang_key'] ] = $v['stormlang_val'];
                 }
             }
-            \file_put_contents( \IPS\ROOT_PATH.'/applications/'.\IPS\Request::i()->appKey .'/dev/lang.php', "<?php\n\n \$lang = " . var_export( $l, true ) . ";\n" );
-            \file_put_contents( \IPS\ROOT_PATH.'/applications/'.\IPS\Request::i()->appKey .'/dev/jslang.php', "<?php\n\n \$lang = " . var_export( $j, true ) . ";\n" );
+            \file_put_contents( \IPS\ROOT_PATH.'/applications/'.\IPS\Request::i()->appKey .'/dev/lang.php', "<?php\n\n\$lang = " . var_export( $l, true ) . ";\n" );
+            \file_put_contents( \IPS\ROOT_PATH.'/applications/'.\IPS\Request::i()->appKey .'/dev/jslang.php', "<?php\n\n\$lang = " . var_export( $j, true ) . ";\n" );
+            \IPS\Output::i()->redirect( \IPS\Request::i()->url() );
         }
 
         return $form;
