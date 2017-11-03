@@ -27,7 +27,8 @@ public static function hookData() {
         if ( \IPS\Request::i()->app == "core" and \IPS\Request::i()->module == "applications" and \IPS\Request::i()->controller == "developer" and !\IPS\Request::i()->do ) {
             $tabNames[ 'class' ] = 'dev_class';
             $tabNames[ 'DevFolder' ] = 'storm_dev_folder';
-            $tabNames['classDev'] = 'New Sources Tab';
+            $tabNames['ClassDev'] = 'New Sources Tab';
+            $tabNames['StormLangs'] = 'Language';
         }
 
         return parent::tabs( $tabNames, $activeId, $defaultContent, $url, $tabParam );

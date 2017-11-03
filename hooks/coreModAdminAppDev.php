@@ -569,8 +569,90 @@ class storm_hook_coreModAdminAppDev extends _HOOK_CLASS_
         return \IPS\storm\Classes\DevFolder::i()->form();
     }
 
-    protected function _manageclassDev(){
+    protected function _manageClassDev(){
         return \IPS\storm\Sources::i()->form();
+    }
+
+    protected function _manageStormLangs(){
+
+        //colors
+        $colors = new \IPS\Helpers\Form\Matrix;
+
+        $colors->columns = array(
+            'lang_key'	=> function( $key, $value, $data )
+            {
+                return new \IPS\Helpers\Form\Text( $key, $value );
+            },
+            'lang_val' => function( $key, $value, $data ){
+                return new \IPS\Helpers\Form\TextArea( $key, $value );
+            },
+            'lang_no_js' => function( $key, $value, $data ){
+                return new \IPS\Helpers\Form\Checkbox($key, $value);
+            },
+            'lang_js' => function( $key, $value, $data ){
+                return new \IPS\Helpers\Form\Checkbox( $key, $value );
+            }
+        );
+
+        $lang = \IPS\ROOT_PATH.'/applications/'.\IPS\Request::i()->appKey .'/dev/lang.php';
+        require $lang;
+        $llang = $lang;
+        $jslang = \IPS\ROOT_PATH.'/applications/'.\IPS\Request::i()->appKey .'/dev/jslang.php';
+        require $jslang;
+        $ljslang = $lang;
+        if( $llang and is_array($llang ) and count( $llang )  ) {
+            foreach( $llang as $key => $val ) {
+                $colors->rows[] = [
+                    'lang_key'   => $key,
+                    'lang_val'   => $val,
+                    'lang_no_js' => 1,
+                    'lang_js'    => ( isset( $ljslang[ $key ] ) ) ? true : false
+                ];
+
+
+                if( isset( $ljslang[ $key ] ) ){
+                    unset( $ljslang[$key] );
+                }
+            }
+        }
+
+        if( $ljslang and is_array( $ljslang ) and count( $ljslang ) ){
+            foreach( $ljslang as $key => $val ){
+                $colors->rows[] = [
+                    'lang_key'   => $key,
+                    'lang_val'   => $val,
+                    'lang_no_js' => false,
+                    'lang_js'    => true
+                ];
+            }
+        }
+
+        $e['prefix'] = 'lang';
+        $e[] = [
+            'type' => 'matrix',
+            'name' => 'langs',
+            'matrix' => $colors
+        ];
+
+        $form = \IPS\storm\Forms::i( $e  );
+
+        if ( $vals = $form->values() ) {
+            $l = [];
+            $j = [];
+            foreach( $vals['langlangs'] as $v ){
+                if( $v['lang_no_js'] ){
+                    $l[ $v['lang_key'] ] = $v['lang_val'];
+                }
+
+                if( $v['lang_js'] ){
+                    $j[ $v['lang_key'] ] = $v['lang_val'];
+                }
+            }
+            \file_put_contents( \IPS\ROOT_PATH.'/applications/'.\IPS\Request::i()->appKey .'/dev/lang.php', "<?php\n\n \$lang = " . var_export( $l, true ) . ";\n" );
+            \file_put_contents( \IPS\ROOT_PATH.'/applications/'.\IPS\Request::i()->appKey .'/dev/jslang.php', "<?php\n\n \$lang = " . var_export( $j, true ) . ";\n" );
+        }
+
+        return $form;
     }
 
     protected function _writeJson( $file, $data )
