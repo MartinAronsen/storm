@@ -72,9 +72,7 @@ class _Proxyclass extends \IPS\Patterns\Singleton
         }
         else
         {
-            if( $includes ) {
-                $this->buildConstants();
-            }
+            $this->buildConstants();
             return null;
         }
     }
@@ -126,7 +124,7 @@ class _Proxyclass extends \IPS\Patterns\Singleton
                     //took less than 5 minutes to implement this 'ultra complex' code
                     try
                     {
-                        if( $db and method_exists( $testClass, 'db' ) and $includes )
+                        if( $db and method_exists( $testClass, 'db' ) )
                         {
                             if( $testClass::db()->checkForTable( $testClass::$databaseTable ) )
                             {
@@ -146,7 +144,7 @@ class _Proxyclass extends \IPS\Patterns\Singleton
                             }
                         }
 
-                        if( $testClass === 'IPS\Settings' and $includes ){
+                        if( $testClass === 'IPS\Settings' ){
                             $isSettings = true;
                             $load = $testClass::i()->getData();
                             foreach( $load as $key => $val ){
@@ -156,16 +154,16 @@ class _Proxyclass extends \IPS\Patterns\Singleton
                     }
                     catch( \Exception $e ){};
 
-                    if( !$isSettings ) {
+//                    if( !$isSettings ) {
                         $alt = \str_replace( [
                             "\\",
                             " ",
                             ";",
                         ], "_", $namespace );
-                    }
-                    else{
-                        $alt = 'IPS_Settings_lone';
-                    }
+//                    }
+//                    else{
+//                        $alt = 'IPS_Settings_lone';
+//                    }
                     if( !\is_file( $save . $alt . '.php' ) )
                     {
                         $content = "<?php\n\n";

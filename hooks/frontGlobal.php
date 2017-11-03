@@ -17,7 +17,9 @@ public static function hookData() {
 
 function queryLog( $log ){
     if( defined( 'CJ_STORM_PROFILER') and CJ_STORM_PROFILER) {
-        return \IPS\storm\Profiler::i()->run(true);
+        if( !\IPS\Request::i()->isAjax() ) {
+            return \IPS\storm\Profiler::i()->run( true );
+        }
     }
     else{
         return parent::queryLog( $log );

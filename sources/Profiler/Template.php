@@ -2,12 +2,12 @@
 
 /**
  * @brief       Template Class
- * @author      -storm_author-
- * @copyright   -storm_copyright-
+ * @author      <a href='http://codingjungle.com'>Michael Edwards</a>
+ * @copyright   (c) 2017 Michael Edwards
  * @package     IPS Social Suite
  * @subpackage  Storm
  * @since       2.0.0
- * @version     -storm_version-
+ * @version     3.0.8
  */
 
 namespace IPS\storm\Profiler;
@@ -489,77 +489,30 @@ EOF;
     {
         if( $this->storm->dbEnabled )
         {
-
-            $query[ 'backtrace' ] = str_replace( "\\\\", "\\", $query[ 'backtrace' ] );
+            $u = \IPS\Http\Url::internal( 'app=storm&module=general&controller=general&do=backtrace&id=' . $query[ 'backtrace' ],
+                'front' );
             $lang = sprintf( $this->db_execution_time, $query[ 'time' ] );
             $html = <<<EOF
-<div class="stormProfilerBase" data-ipsDialog data-ipsDialog-content="#{$query['hash']}">
+<div class="stormProfilerBase" data-ipsDialog data-ipsDialog-url="{$u}">
     <div>{$lang}</div>
     <div>
         <code class="prettyprint lang-sql stormProfilerBasePointer">{$query['query']}</code>
     </div>
 </div>
-<div id="{$query['hash']}" class="ipsHide ipsPad">
-    <code>
-        {$query[ 'query' ]}
-    </code>
-    <br>
-    <pre class="prettyprint lang-php">{$query[ 'backtrace' ]}</pre>
-</div>
 EOF;
             return $html;
         }
     }
 
-    public function db2( $query )
-    {
-        if( $this->storm->dbEnabled )
-        {
-            $lang = sprintf( $this->db_execution_time, $query[ 'time' ] );
-            $html = <<<EOF
-<div class="stormProfilerBase">
-    <div>{$lang}</div>
-    <div>
-        <code class="prettyprint lang-sql">{$query['query']}</code>
-    </div>
-</div>
-EOF;
-            return $html;
-        }
-    }
-
-    public function cache( $cache, $hash )
+    public function cache( $type, $key, $num )
     {
         if( $this->storm->cacheEnabled )
         {
-            $type = sprintf( 'Type: %s', $cache['type'] );
-            $key = sprintf( 'Key: %s', $cache['key'] );
-            $html = <<<EOF
-<div class="stormProfilerBase stormProfilerCacheLog" data-ipsDialog data-ipsDialog-content="#{$hash}">
-    <div>{$type}</div>
-    <div>{$key}</div>
-</div>
-<div id="{$hash}" class="ipsHide ipsPad">
-    <code>
-        <div>{$type}</div>
-        <div>{$key}</div>
-    </code>
-    <br>
-    <pre class="prettyprint lang-php">{$cache[ 'backtrace' ]}</pre>
-</div>
-EOF;
-            return $html;
-        }
-    }
-
-    public function cache2( $type, $key )
-    {
-        if( $this->storm->cacheEnabled )
-        {
+            $u = \IPS\Http\Url::internal( 'app=storm&module=general&controller=general&do=cache&id=' . $num, 'front' );
             $type = sprintf( 'Type: %s', $type );
             $key = sprintf( 'Key: %s', $key );
             $html = <<<EOF
-<div class="stormProfilerBase stormProfilerCacheLog">
+<div class="stormProfilerBase stormProfilerCacheLog" data-ipsDialog data-ipsDialog-url="{$u}">
     <div>{$type}</div>
     <div>{$key}</div>
 </div>

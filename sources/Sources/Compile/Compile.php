@@ -141,7 +141,6 @@ abstract class _Compile extends \IPS\Patterns\Singleton
     protected function getDir()
     {
         $ns = \str_replace( 'IPS\\'.$this->directory.'\\', '', $this->namespace );
-        _print($ns, $this->namespace);
         $ns = \explode( '\\', $ns );
         $ns = \implode( '/',$ns );
 

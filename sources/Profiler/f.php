@@ -112,23 +112,21 @@ class _Profiler
             $this->fileTab();
             $this->memoryTotal();
             $this->totalTime();
-//            if( $this->type == 1 )
-//            {
-            $bt = [];
-//                if( isset( \IPS\Data\Store::i()->storm_bt ) )
-//                {
-//                    $bt = \IPS\Data\Store::i()->storm_bt;
-//                }
+            if( $this->type == 1 )
+            {
+                if( isset( \IPS\Data\Store::i()->storm_bt ) )
+                {
+                    unset( \IPS\Data\Store::i()->storm_bt );
+                }
 
-                $ca = [];
-//                if( isset( \IPS\Data\Store::i()->storm_cache ) )
-//                {
-//                    $ca = \IPS\Data\Store::i()->storm_cache ;
-//                }
-//            }
+                if( isset( \IPS\Data\Store::i()->storm_cache ) )
+                {
+                    unset( \IPS\Data\Store::i()->storm_cache );
+                }
+            }
 
-            \IPS\Data\Store::i()->storm_bt = array_merge( $bt, $this->dbLogs );
-            \IPS\Data\Store::i()->storm_cache = array_merge( $ca, $this->cacheLogs);
+            \IPS\Data\Store::i()->storm_bt = $this->dbLogs;
+            \IPS\Data\Store::i()->storm_cache = $this->cacheLogs;
 
             return \IPS\storm\Profiler\Template::i()->tabs();
         }
